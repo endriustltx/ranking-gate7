@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  ranking:
+    build: .
+    container_name: ranking-operadores
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ranking-data:/app/data
+    environment:
+      - PORT=3000
+      - ADMIN_USER=admin
+      - ADMIN_PASS=meta2025
+      - SESSION_SECRET=troque-esta-chave-secreta-agora
+    labels:
+      - "com.centurion.description=Ranking Operadores Dashboard"
+
+volumes:
+  ranking-data:
+    driver: local
