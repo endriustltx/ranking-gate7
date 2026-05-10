@@ -2,3 +2,8 @@ node_modules/
 data/
 .env
 *.db
+<<<<<<< HEAD
+=======
+node_modules/
+data/*.db
+>>>>>>> feebf4eb2947bdaa43d1d108edce3636f9bf6cb6

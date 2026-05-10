@@ -84,6 +84,50 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 .score-n{font-family:'Bebas Neue',cursive;font-size:40px;line-height:1;}
 .score-l{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
 
+/* ══ SPEECH BUBBLES ══ */
+.bubble{
+  position:absolute;z-index:20;
+  background:#fff;color:#111;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.5px;white-space:nowrap;
+  padding:4px 9px;border-radius:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);
+  animation:bubblePop .3s cubic-bezier(.34,1.56,.64,1) both;
+  pointer-events:none;
+}
+.bubble::after{
+  content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+  border:6px solid transparent;border-top-color:#fff;border-bottom:none;
+}
+.bubble-socorro{
+  background:#FF3B3B;color:#fff;
+  animation:bubblePop .3s cubic-bezier(.34,1.56,.64,1) both, bubbleShake .4s ease-in-out infinite;
+  bottom:52px;
+}
+.bubble-socorro::after{border-top-color:#FF3B3B;}
+.bubble-peguei{
+  background:#7C3AED;color:#fff;
+  bottom:52px;
+  animation:bubblePop .3s cubic-bezier(.34,1.56,.64,1) both, bubbleFloat .8s ease-in-out infinite alternate;
+}
+.bubble-peguei::after{border-top-color:#7C3AED;}
+.bubble-venci{
+  background:#F5C842;color:#111;
+  bottom:52px;
+  animation:bubblePop .4s cubic-bezier(.34,1.56,.64,1) both, bubbleFloat .6s ease-in-out infinite alternate;
+}
+.bubble-venci::after{border-top-color:#F5C842;}
+@keyframes bubblePop{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+@keyframes bubbleShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-3px);}75%{transform:translateX(3px);}}
+@keyframes bubbleFloat{0%{transform:translateY(0);}100%{transform:translateY(-4px);}}
+
+/* dead penguin (killed) */
+.penguin-dead{
+  position:absolute;z-index:7;
+  animation:penguinDie .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes penguinDie{0%{transform:rotate(0) scale(1);opacity:1;}100%{transform:rotate(90deg) scale(.7);opacity:.5;}}
+
 /* ══ RACE TRACK ══ */
 .race-wrap{position:relative;height:72px;margin-top:2px;padding-right:48px;}
 .ground{position:absolute;bottom:10px;left:0;right:0;height:3px;
@@ -635,13 +679,45 @@ function buildDeadTrack(op){
     <div class="dead-track">
       <div class="dead-dashes"></div>
       <div class="dead-ground"></div>
-      <div class="ghost-wrap" style="left:20%;">${ghostSparks()}${ghostHTML(28)}</div>
-      <div class="reaper-won" style="left:44%;">${reaperHTML(40)}</div>
+      <div class="ghost-wrap" style="left:18%;">${ghostSparks()}${ghostHTML(28)}</div>
+      <div class="reaper-won" style="left:40%;">
+        <div class="bubble bubble-peguei" style="left:-32px;">haha te peguei! 😈</div>
+        ${reaperHTML(44)}
+      </div>
       <div class="end-star-dead">⭐</div>
       <div class="track-pct" style="color:#6B5FA0;bottom:-20px;">sem pontuação</div>
       <div class="track-goal" style="bottom:-20px;">capturado 🐧</div>
     </div>
     <span class="stag stag-dead">🐧 Capturado pelo pinguim!</span>
+  `;
+}
+
+function buildWinTrack(op, rank){
+  const runColor = rank===1?'#F5C842': rank===2?'#B0C4DE': rank===3?'#CD7F32':'#60A5FA';
+  return `
+    <div class="race-wrap">
+      <div class="dashes"></div>
+      <div class="ground">
+        <div class="track-fill-bar" data-pct="82" style="width:0%;background:linear-gradient(90deg,#22C55E55,#22C55E);"></div>
+      </div>
+      <!-- Pinguim morto deitado -->
+      <div style="position:absolute;bottom:17px;left:22%;z-index:7;transform:rotate(85deg);opacity:.5;filter:grayscale(.5);">
+        ${reaperHTML(30)}
+      </div>
+      <!-- X acima do pinguim morto -->
+      <div style="position:absolute;bottom:48px;left:20%;z-index:8;font-size:18px;color:#FF3B3B;font-weight:900;animation:bubblePop .4s both;">💥</div>
+      <!-- Runner na estrela -->
+      <div class="runner-sprite" style="left:80%;bottom:13px;">
+        <div class="bubble bubble-venci" style="left:-56px;font-size:10px;">haha dessa vez não! 🌟</div>
+        ${runnerHTML(runColor,30)}
+      </div>
+      <div style="position:absolute;right:4px;bottom:2px;font-size:38px;z-index:8;
+        animation:starpulse 0.7s ease-in-out infinite;
+        filter:drop-shadow(0 0 20px rgba(245,200,66,1)) drop-shadow(0 0 40px rgba(245,200,66,.7));">⭐</div>
+      <div class="track-pct" style="color:#22C55E;bottom:-20px;">score 5.0 — MÁXIMO!</div>
+      <div class="track-goal" style="bottom:-20px;">pinguim eliminado 💀</div>
+    </div>
+    <span class="stag stag-top">🏆 Pinguim eliminado — score máximo!</span>
   `;
 }
 
@@ -656,11 +732,15 @@ function buildRaceTrack(op, rank, goalSla){
   else if(pct<80){ reapPct = Math.max(-12, runPct - 16); }
   else { reapPct = -18; }
 
+  const socorroBubble = pct < 60
+    ? `<div class="bubble bubble-socorro" style="left:-34px;font-size:10px;">SOCORROOOOO!! 😱</div>`
+    : '';
+
   const tag = isTop
     ? `<span class="stag stag-top">🔥 Campeão da semana</span>`
     : pct>=80 ? `<span class="stag stag-ok">⭐ Perto da meta</span>`
     : pct>=60 ? `<span class="stag stag-warn">⚠️ Atenção</span>`
-    : `<span class="stag stag-danger">💀 A morte te persegue!</span>`;
+    : `<span class="stag stag-danger">🐧 O pinguim tá chegando!</span>`;
 
   return `
     <div class="race-wrap">
@@ -674,7 +754,10 @@ function buildRaceTrack(op, rank, goalSla){
         background:linear-gradient(90deg,transparent,rgba(255,50,50,${pct<60?.45:pct<80?.2:0}));
         left:${Math.max(0,reapPct)}%;width:15%;transition:left 1.8s cubic-bezier(.22,1,.36,1);"></div>
       <div class="reaper-sprite" style="left:${reapPct}%;bottom:13px;">${reaperHTML(34)}</div>
-      <div class="runner-sprite" style="left:${runPct}%;bottom:13px;">${runnerHTML(runColor,30)}</div>
+      <div class="runner-sprite" style="left:${runPct}%;bottom:13px;">
+        ${socorroBubble}
+        ${runnerHTML(runColor,30)}
+      </div>
       <div class="end-star">⭐</div>
       <div class="track-pct" style="color:${color}">${pct}% SLA</div>
       <div class="track-goal">meta: ${goalSla}%</div>
@@ -704,23 +787,29 @@ function renderRanking(data){
     const med = medalCls(rank);
     const goalSla = data.goals.slaPct || 80;
 
-    const borderColor = rank===1?'#F5C842':rank===2?'#B0C4DE':rank===3?'#CD7F32':isDead?'rgba(100,80,180,.3)':'transparent';
+    const isDead = op.score === 0;
+    const isWin  = op.score >= 5;
+
+    const borderColor = rank===1?'#F5C842':rank===2?'#B0C4DE':rank===3?'#CD7F32':isDead?'rgba(100,80,180,.3)':isWin?'rgba(34,197,94,.5)':'transparent';
 
     const card = document.createElement('div');
     card.className = 'rank-card' + (isDead?' dead-card':'');
     card.dataset.rank = rank;
     card.style.borderLeft = `4px solid ${borderColor}`;
+    if(isWin) card.style.boxShadow = '0 0 40px rgba(34,197,94,.15)';
 
-    const trackHTML = isDead ? buildDeadTrack(op) : buildRaceTrack(op, rank, goalSla);
+    const trackHTML = isDead ? buildDeadTrack(op)
+                    : isWin  ? buildWinTrack(op, rank)
+                    : buildRaceTrack(op, rank, goalSla);
 
     card.innerHTML=`
       <div class="card-top">
         <div class="rank-pos ${med}" style="${isDead?'opacity:.4':''}">
-          ${isDead?'<span style="font-size:26px">👻</span>':rank}
+          ${isDead?'<span style="font-size:26px">👻</span>':isWin?'<span style="font-size:26px;filter:drop-shadow(0 0 8px gold)">🏆</span>':rank}
         </div>
         <div>
           <div class="rank-name" style="${isDead?'opacity:.55':''}">
-            ${op.name}${isDead?' <span style="font-size:14px">👻</span>':''}
+            ${op.name}${isDead?' <span style="font-size:14px">👻</span>':''}${isWin?' <span style="font-size:14px">⭐</span>':''}
           </div>
           <div class="rank-chips">
             <div class="chip"><div class="chip-l">Tickets</div><div class="chip-v" style="${isDead?'opacity:.45':''}">${op.tickets}</div></div>
@@ -730,7 +819,7 @@ function renderRanking(data){
           </div>
         </div>
         <div class="score-col">
-          <div class="score-n" style="color:${op.score>=2?'#F5C842':op.score>=1?'#94A3B8':'var(--muted)'}">${op.score}</div>
+          <div class="score-n" style="color:${op.score>=5?'#22C55E':op.score>=2?'#F5C842':op.score>=1?'#94A3B8':'var(--muted)'}">${op.score}</div>
           <div class="score-l">pts</div>
         </div>
       </div>
