@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ranking Operadores</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#F5C842;--silver:#B0C4DE;--bronze:#CD7F32;
+  --danger:#FF3B3B;--success:#22C55E;
+  --bg:#080810;--surface:#10101A;--surface2:#181828;
+  --border:rgba(255,255,255,0.07);--text:#F0EEF8;--muted:#5A5A7A;--purple:#7C3AED;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* STARS */
+#stars-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at 20% 60%,#0d0d2b 0%,#080810 65%);}
+.star{position:absolute;background:#fff;border-radius:50%;
+  animation:twinkle var(--d) ease-in-out infinite var(--dl);}
+@keyframes twinkle{0%,100%{opacity:.08;transform:scale(1);}50%{opacity:1;transform:scale(1.5);}}
+
+/* PAGES */
+.page{display:none;position:relative;z-index:1;min-height:100vh;}
+.page.active{display:block;}
+
+/* ══════════ RANKING PAGE ══════════ */
+#page-ranking{padding-bottom:80px;}
+
+.ranking-header{text-align:center;padding:32px 20px 22px;}
+.ranking-title{
+  font-family:'Bebas Neue',cursive;font-size:clamp(52px,7vw,90px);
+  letter-spacing:8px;line-height:1;
+  background:linear-gradient(135deg,#F5C842 0%,#fffbe6 45%,#F5C842 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 40px rgba(245,200,66,.45));
+}
+.ranking-sub{font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:5px;
+  text-transform:uppercase;color:var(--muted);margin-top:4px;}
+.week-badge{display:inline-block;margin-top:10px;padding:4px 16px;
+  border:1px solid var(--border);border-radius:100px;font-size:11px;
+  color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;text-transform:uppercase;}
+
+/* Meta banner */
+.meta-banner{background:var(--surface);border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);padding:10px 28px;display:flex;
+  align-items:center;gap:18px;overflow-x:auto;flex-wrap:wrap;}
+.meta-item .ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.meta-item .mv{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;}
+.meta-sep{width:1px;height:28px;background:var(--border);flex-shrink:0;}
+
+/* ══ TV GRID — 2 columns ══ */
+.ranking-grid{
+  max-width:1800px;margin:24px auto 0;padding:0 20px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+@media(max-width:900px){.ranking-grid{grid-template-columns:1fr;}}
+
+/* CARDS */
+.rank-card{
+  position:relative;background:var(--surface);border:1px solid var(--border);
+  border-radius:18px;padding:18px 20px 16px;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+}
+.rank-card:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(0,0,0,.5);}
+.rank-card[data-rank="1"]{border-color:rgba(245,200,66,.45);box-shadow:0 0 40px rgba(245,200,66,.1);}
+.rank-card[data-rank="2"]{border-color:rgba(176,196,222,.22);}
+.rank-card[data-rank="3"]{border-color:rgba(205,127,50,.22);}
+
+.card-top{display:grid;grid-template-columns:50px 1fr auto;align-items:start;gap:14px;margin-bottom:14px;}
+.rank-pos{font-family:'Bebas Neue',cursive;font-size:42px;line-height:1;text-align:center;color:var(--muted);}
+.rank-pos.gold{color:var(--gold);filter:drop-shadow(0 0 10px rgba(245,200,66,.7));}
+.rank-pos.silver{color:var(--silver);}
+.rank-pos.bronze{color:var(--bronze);}
+.rank-name{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;margin-bottom:6px;}
+.rank-chips{display:flex;gap:14px;flex-wrap:wrap;}
+.chip .chip-l{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.chip .chip-v{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;}
+.score-col{display:flex;flex-direction:column;align-items:center;}
+.score-n{font-family:'Bebas Neue',cursive;font-size:40px;line-height:1;}
+.score-l{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+
+/* ══ RACE TRACK ══ */
+.race-wrap{position:relative;height:72px;margin-top:2px;padding-right:48px;}
+.ground{position:absolute;bottom:10px;left:0;right:0;height:3px;
+  background:rgba(255,255,255,.06);border-radius:2px;}
+.dashes{position:absolute;bottom:11px;left:0;right:0;height:2px;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.18) 0,rgba(255,255,255,.18) 8px,transparent 8px,transparent 20px);}
+.track-fill-bar{position:absolute;bottom:10px;left:0;height:3px;border-radius:2px;
+  transition:width 1.8s cubic-bezier(.22,1,.36,1);}
+.reaper-sprite{position:absolute;bottom:13px;transition:left 1.8s cubic-bezier(.22,1,.36,1);z-index:5;}
+.runner-sprite{position:absolute;bottom:13px;transition:left 1.8s cubic-bezier(.22,1,.36,1);z-index:6;}
+.runner-svg{animation:run .22s steps(1) infinite;}
+@keyframes run{0%{transform:translateY(0);}25%{transform:translateY(-2px);}50%{transform:translateY(0);}75%{transform:translateY(-1px);}}
+.reaper-svg{animation:reap .28s steps(1) infinite;}
+@keyframes reap{0%{transform:translateY(0);}33%{transform:translateY(-3px);}66%{transform:translateY(-1px);}}
+.end-star{position:absolute;right:4px;bottom:2px;font-size:32px;z-index:8;
+  animation:starpulse 1.4s ease-in-out infinite;
+  filter:drop-shadow(0 0 14px rgba(245,200,66,1));}
+@keyframes starpulse{0%,100%{transform:scale(1) rotate(-10deg);}50%{transform:scale(1.25) rotate(10deg);}}
+.track-pct{position:absolute;left:0;bottom:-20px;
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;}
+.track-goal{position:absolute;right:0;bottom:-20px;
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--muted);}
+
+/* Dead track */
+.dead-track{position:relative;height:72px;margin-top:2px;padding-right:48px;opacity:.75;}
+.dead-ground{position:absolute;bottom:10px;left:0;right:0;height:3px;
+  background:rgba(255,255,255,.04);border-radius:2px;}
+.dead-dashes{position:absolute;bottom:11px;left:0;right:0;height:2px;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0,rgba(255,255,255,.07) 8px,transparent 8px,transparent 20px);}
+.reaper-won{position:absolute;bottom:10px;left:42%;z-index:6;
+  animation:reapwon .7s ease-in-out infinite alternate;}
+@keyframes reapwon{0%{transform:translateY(0) rotate(-8deg) scale(1);}100%{transform:translateY(-6px) rotate(8deg) scale(1.08);}}
+.ghost-wrap{position:absolute;left:18%;bottom:10px;z-index:7;
+  animation:ghostrise 2.2s ease-in-out infinite;}
+@keyframes ghostrise{0%{transform:translateY(0);opacity:.9;}30%{transform:translateY(-18px) translateX(4px);opacity:.8;}60%{transform:translateY(-32px) translateX(-3px);opacity:.6;}85%{transform:translateY(-48px) translateX(2px);opacity:.3;}100%{transform:translateY(-54px);opacity:0;}}
+.ghost-svg{animation:ghostwobble 1.1s ease-in-out infinite alternate;}
+@keyframes ghostwobble{0%{transform:scaleX(1);}100%{transform:scaleX(0.92);}}
+.spark{position:absolute;width:4px;height:4px;border-radius:50%;background:#aaf;opacity:0;
+  animation:sparkanim 2.2s ease-in-out infinite;}
+@keyframes sparkanim{0%{opacity:0;transform:translate(0,0) scale(0);}40%{opacity:.8;transform:translate(var(--tx),var(--ty)) scale(1);}100%{opacity:0;transform:translate(var(--tx2),var(--ty2)) scale(0);}}
+.end-star-dead{position:absolute;right:4px;bottom:2px;font-size:32px;z-index:8;
+  filter:grayscale(1) brightness(.3);}
+.rank-card.dead-card{border-color:rgba(120,120,180,.12)!important;box-shadow:inset 0 0 60px rgba(80,80,120,.08)!important;}
+
+/* Status tags */
+.stag{display:inline-flex;align-items:center;gap:5px;padding:3px 12px;border-radius:100px;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;
+  text-transform:uppercase;font-weight:700;margin-top:22px;}
+.stag-danger{background:rgba(255,59,59,.14);color:#FF6B6B;border:1px solid rgba(255,59,59,.25);}
+.stag-warn{background:rgba(245,158,11,.14);color:#FBB040;border:1px solid rgba(245,158,11,.25);}
+.stag-ok{background:rgba(34,197,94,.14);color:#4ADE80;border:1px solid rgba(34,197,94,.25);}
+.stag-top{background:rgba(245,200,66,.15);color:var(--gold);border:1px solid rgba(245,200,66,.3);}
+.stag-dead{background:rgba(120,100,200,.14);color:#9988cc;border:1px solid rgba(120,100,200,.25);}
+
+/* Legend */
+.legend{max-width:1800px;margin:24px auto 0;padding:0 20px;display:flex;gap:16px;flex-wrap:wrap;}
+.legend-item{font-size:11px;color:var(--muted);}
+
+/* Admin FAB */
+.admin-fab{position:fixed;bottom:22px;right:22px;
+  background:var(--surface2);border:1px solid var(--border);color:var(--muted);
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;padding:9px 18px;border-radius:100px;cursor:pointer;
+  transition:all .2s;z-index:200;}
+.admin-fab:hover{color:var(--text);border-color:rgba(255,255,255,.2);}
+
+/* Refresh indicator */
+.refresh-dot{position:fixed;top:16px;right:16px;width:8px;height:8px;border-radius:50%;
+  background:var(--success);z-index:300;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.4;transform:scale(1);}50%{opacity:1;transform:scale(1.3);}}
+
+/* ══════════ LOGIN MODAL ══════════ */
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.lcard{background:var(--surface);border:1px solid var(--border);border-radius:24px;
+  padding:44px 40px;width:100%;max-width:360px;text-align:center;position:relative;}
+.llogo{font-family:'Bebas Neue',cursive;font-size:36px;letter-spacing:5px;
+  background:linear-gradient(135deg,#F5C842,#fff);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;}
+.lsub{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:28px;}
+.lf{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  padding:12px 16px;color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;
+  margin-bottom:10px;outline:none;transition:border-color .2s;}
+.lf:focus{border-color:rgba(124,58,237,.6);}
+.lb{width:100%;background:var(--purple);border:none;border-radius:10px;padding:12px;color:#fff;
+  font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-top:4px;}
+.lb:hover{background:#6d28d9;transform:translateY(-1px);}
+.lerr{color:var(--danger);font-size:13px;margin-top:8px;min-height:16px;}
+.modal-close{position:absolute;top:16px;right:18px;background:transparent;border:none;
+  color:var(--muted);font-size:22px;cursor:pointer;line-height:1;}
+.modal-close:hover{color:var(--text);}
+
+/* ══════════ ADMIN MODAL ══════════ */
+.admin-modal-overlay{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.8);backdrop-filter:blur(8px);
+  align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 20px 80px;
+}
+.admin-modal-overlay.open{display:flex;}
+.admin-panel{background:var(--surface);border:1px solid var(--border);border-radius:24px;
+  padding:36px;width:100%;max-width:960px;position:relative;}
+.ap-title{font-family:'Bebas Neue',cursive;font-size:40px;letter-spacing:3px;margin-bottom:24px;}
+.ap-close{position:absolute;top:20px;right:24px;background:transparent;border:none;
+  color:var(--muted);font-size:22px;cursor:pointer;}
+.ap-close:hover{color:var(--text);}
+.gbox{background:var(--surface2);border:1px solid var(--border);border-radius:14px;
+  padding:20px;margin-bottom:16px;}
+.gbox-t{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.gg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.gfw{display:flex;flex-direction:column;gap:4px;}
+.gfl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.ai{background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  padding:9px 12px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;
+  width:100%;outline:none;transition:border-color .2s;}
+.ai:focus{border-color:rgba(124,58,237,.6);}
+.adm-rows{display:flex;flex-direction:column;gap:6px;}
+.adm-row{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  padding:12px 16px;display:grid;
+  grid-template-columns:140px repeat(5,1fr) 60px;align-items:center;gap:8px;}
+.adm-row.hr{background:transparent;border-color:transparent;
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--muted);padding:6px 16px;}
+.adm-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;}
+.ok-btn{background:#22C55E;border:none;border-radius:7px;padding:7px 10px;color:#fff;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.ok-btn:hover{background:#16a34a;}
+.ap-footer{display:flex;align-items:center;justify-content:space-between;margin-top:20px;flex-wrap:wrap;gap:12px;}
+.sva-btn{background:var(--purple);border:none;border-radius:10px;padding:12px 28px;color:#fff;
+  font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.sva-btn:hover{background:#6d28d9;}
+.out-btn{background:transparent;border:1px solid rgba(255,59,59,.25);color:#ff6b6b;
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;padding:8px 16px;border-radius:100px;cursor:pointer;transition:all .2s;}
+.out-btn:hover{background:rgba(255,59,59,.1);}
+.smsg{font-size:13px;color:var(--success);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;}
+
+@media(max-width:640px){
+  .adm-row{grid-template-columns:1fr 1fr;}
+  .adm-row.hr{display:none;}
+  .card-top{grid-template-columns:40px 1fr;}
+  .score-col{display:none;}
+  .gg{grid-template-columns:1fr 1fr;}
+  .admin-panel{padding:24px 16px;}
+}
+</style>
+</head>
+<body>
+
+<div id="stars-bg"></div>
+<div class="refresh-dot" title="Auto-refresh ativo"></div>
+
+<!-- ════════════════ RANKING ════════════════ -->
+<div id="page-ranking" class="page active">
+  <div class="ranking-header">
+    <div class="ranking-title">RANKING</div>
+    <div class="ranking-sub">Operadores · Semanal</div>
+    <div class="week-badge" id="week-badge">Semana em andamento</div>
+  </div>
+
+  <div class="meta-banner">
+    <div class="meta-item"><div class="ml">Tickets Abertos</div><div class="mv" id="hdr-ab">—</div></div>
+    <div class="meta-sep"></div>
+    <div class="meta-item"><div class="ml">Fechados</div><div class="mv" id="hdr-fe">—</div></div>
+    <div class="meta-sep"></div>
+    <div class="meta-item"><div class="ml">SLA Dentro</div><div class="mv" id="hdr-si" style="color:var(--success)">—</div></div>
+    <div class="meta-sep"></div>
+    <div class="meta-item"><div class="ml">SLA Fora</div><div class="mv" id="hdr-so" style="color:var(--danger)">—</div></div>
+    <div class="meta-sep"></div>
+    <div class="meta-item"><div class="ml">Horas</div><div class="mv" id="hdr-hr">—</div></div>
+    <div class="meta-sep"></div>
+    <div class="meta-item"><div class="ml">Distribuição</div><div class="mv" id="hdr-dt" style="font-size:12px;color:var(--muted)">—</div></div>
+  </div>
+
+  <div class="ranking-grid" id="ranking-grid">
+    <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted);
+      font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:2px;">
+      Carregando dados...
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">👻 Capturado = 0 pts</div>
+    <div class="legend-item">💀 Perseguido = SLA &lt; 60%</div>
+    <div class="legend-item">⚠️ Atenção = SLA 60–79%</div>
+    <div class="legend-item">⭐ Chegando na meta = SLA ≥ 80%</div>
+    <div class="legend-item">🔥 Campeão = Top 1</div>
+  </div>
+</div>
+
+<!-- ════════════════ LOGIN MODAL ════════════════ -->
+<div class="modal-overlay" id="login-modal">
+  <div class="lcard">
+    <button class="modal-close" onclick="closeLogin()">×</button>
+    <div class="llogo">ADMIN</div>
+    <div class="lsub">Painel de controle</div>
+    <input class="lf" id="lu" type="text" placeholder="Usuário" autocomplete="off">
+    <input class="lf" id="lp" type="password" placeholder="Senha">
+    <button class="lb" onclick="doLogin()">Entrar</button>
+    <div class="lerr" id="lerr"></div>
+  </div>
+</div>
+
+<!-- ════════════════ ADMIN MODAL ════════════════ -->
+<div class="admin-modal-overlay" id="admin-modal">
+  <div class="admin-panel">
+    <button class="ap-close" onclick="closeAdmin()">×</button>
+    <div class="ap-title">Atualizar Dados</div>
+
+    <div class="gbox">
+      <div class="gbox-t">Metas globais</div>
+      <div class="gg">
+        <div class="gfw"><div class="gfl">Meta SLA Dentro (%)</div><input class="ai" id="goal-sla" type="number" placeholder="80"></div>
+        <div class="gfw"><div class="gfl">Meta Tickets Fechados</div><input class="ai" id="goal-tickets" type="number" placeholder="20"></div>
+        <div class="gfw"><div class="gfl">Distribuição</div><input class="ai" id="goal-dist" type="text" placeholder="N1-118/N2-36"></div>
+      </div>
+    </div>
+
+    <div class="gbox">
+      <div class="gbox-t">Totais gerais (cabeçalho)</div>
+      <div class="gg">
+        <div class="gfw"><div class="gfl">Tickets Abertos</div><input class="ai" id="hdr-inp-ab" type="number"></div>
+        <div class="gfw"><div class="gfl">Tickets Fechados</div><input class="ai" id="hdr-inp-fe" type="number"></div>
+        <div class="gfw"><div class="gfl">Horas Trabalhadas</div><input class="ai" id="hdr-inp-hr" type="text" placeholder="157:54:00"></div>
+      </div>
+    </div>
+
+    <div class="gbox">
+      <div class="gbox-t">Dados por operador</div>
+      <div class="adm-rows" id="admin-grid"></div>
+    </div>
+
+    <div class="ap-footer">
+      <button class="out-btn" onclick="doLogout()">Sair da sessão</button>
+      <div class="smsg" id="smsg"></div>
+      <button class="sva-btn" onclick="saveAll()">💾 Salvar tudo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin FAB button -->
+<button class="admin-fab" id="admin-fab" onclick="openAdminOrLogin()">⚙ Admin</button>
+
+<script>
+/* ═══════════════════════ API ═══════════════════════ */
+async function api(path, method='GET', body=null){
+  const opts = { method, headers:{'Content-Type':'application/json'} };
+  if(body) opts.body = JSON.stringify(body);
+  const r = await fetch(path, opts);
+  return r.json();
+}
+
+/* ═══════════════════════ STATE ═══════════════════════ */
+let appData = null;
+let isLoggedIn = false;
+let refreshInterval = null;
+
+/* ═══════════════════════ BOOT ═══════════════════════ */
+async function boot(){
+  initStars();
+  updateWeek();
+  // Check if already have a session
+  const auth = await api('/api/auth-check');
+  isLoggedIn = auth.loggedIn;
+  await loadAndRender();
+  // Auto-refresh every 60s (for TV display)
+  refreshInterval = setInterval(loadAndRender, 60000);
+}
+
+async function loadAndRender(){
+  try {
+    appData = await api('/api/data');
+    renderRanking(appData);
+  } catch(e) {
+    console.error('Erro ao carregar dados:', e);
+  }
+}
+
+/* ═══════════════════════ AUTH ═══════════════════════ */
+function openAdminOrLogin(){
+  if(isLoggedIn) openAdmin();
+  else openLogin();
+}
+
+function openLogin(){
+  document.getElementById('login-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('lu').focus(), 100);
+}
+function closeLogin(){
+  document.getElementById('login-modal').classList.remove('open');
+  document.getElementById('lerr').textContent='';
+}
+
+async function doLogin(){
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lp').value.trim();
+  const r = await api('/api/login','POST',{username:u,password:p});
+  if(r.ok){
+    isLoggedIn = true;
+    document.getElementById('lu').value='';
+    document.getElementById('lp').value='';
+    closeLogin();
+    openAdmin();
+  } else {
+    document.getElementById('lerr').textContent = r.error || 'Erro ao fazer login';
+    document.getElementById('lp').value='';
+  }
+}
+
+async function doLogout(){
+  await api('/api/logout','POST');
+  isLoggedIn = false;
+  closeAdmin();
+}
+
+document.getElementById('lp').addEventListener('keydown', e => {
+  if(e.key==='Enter') doLogin();
+});
+
+/* ═══════════════════════ ADMIN PANEL ═══════════════════════ */
+function openAdmin(){
+  if(!appData) return;
+  fillAdminForm(appData);
+  document.getElementById('admin-modal').classList.add('open');
+}
+function closeAdmin(){
+  document.getElementById('admin-modal').classList.remove('open');
+}
+
+// Close modals on overlay click
+document.getElementById('login-modal').addEventListener('click', e => {
+  if(e.target === e.currentTarget) closeLogin();
+});
+document.getElementById('admin-modal').addEventListener('click', e => {
+  if(e.target === e.currentTarget) closeAdmin();
+});
+
+function fillAdminForm(data){
+  document.getElementById('goal-sla').value     = data.goals.slaPct  || '';
+  document.getElementById('goal-tickets').value = data.goals.tickets || '';
+  document.getElementById('goal-dist').value    = data.goals.dist    || '';
+  document.getElementById('hdr-inp-ab').value   = data.header.abertos  || '';
+  document.getElementById('hdr-inp-fe').value   = data.header.fechados || '';
+  document.getElementById('hdr-inp-hr').value   = data.header.horas    || '';
+
+  const grid = document.getElementById('admin-grid');
+  grid.innerHTML='';
+
+  const hr=document.createElement('div');
+  hr.className='adm-row hr';
+  hr.innerHTML='<div>Operador</div><div>Tickets</div><div>SLA Dentro</div><div>SLA Fora</div><div>Horas</div><div>Pontuação</div><div></div>';
+  grid.appendChild(hr);
+
+  data.operators.forEach((op,idx)=>{
+    const row=document.createElement('div');
+    row.className='adm-row';
+    row.innerHTML=`
+      <div class="adm-name">${op.name}</div>
+      <input class="ai" type="number" id="op-${idx}-t"  value="${op.tickets}" min="0">
+      <input class="ai" type="number" id="op-${idx}-si" value="${op.slaIn}"   min="0">
+      <input class="ai" type="number" id="op-${idx}-so" value="${op.slaOut}"  min="0">
+      <input class="ai" type="text"   id="op-${idx}-h"  value="${op.horas}">
+      <input class="ai" type="number" id="op-${idx}-sc" value="${op.score}" min="0" step="0.5">
+      <button class="ok-btn" onclick="saveRow(${idx},'${op.name}')">OK</button>
+    `;
+    grid.appendChild(row);
+  });
+}
+
+async function saveRow(idx, name){
+  const body = {
+    tickets: parseFloat(document.getElementById(`op-${idx}-t`).value)||0,
+    slaIn:   parseFloat(document.getElementById(`op-${idx}-si`).value)||0,
+    slaOut:  parseFloat(document.getElementById(`op-${idx}-so`).value)||0,
+    horas:   document.getElementById(`op-${idx}-h`).value||'0:00:00',
+    score:   parseFloat(document.getElementById(`op-${idx}-sc`).value)||0,
+  };
+  const r = await api(`/api/operators/${encodeURIComponent(name)}`, 'POST', body);
+  if(r.ok){ showStatus('✓ '+name+' salvo!'); await loadAndRender(); }
+}
+
+async function saveAll(){
+  const configBody = {
+    abertos:      parseInt(document.getElementById('hdr-inp-ab').value)||0,
+    fechados:     parseInt(document.getElementById('hdr-inp-fe').value)||0,
+    horas:        document.getElementById('hdr-inp-hr').value||'',
+    dist:         document.getElementById('goal-dist').value||'',
+    goal_sla:     parseInt(document.getElementById('goal-sla').value)||80,
+    goal_tickets: parseInt(document.getElementById('goal-tickets').value)||20,
+  };
+
+  const operators = appData.operators.map((op,idx)=>({
+    name:    op.name,
+    tickets: parseFloat(document.getElementById(`op-${idx}-t`).value)||0,
+    slaIn:   parseFloat(document.getElementById(`op-${idx}-si`).value)||0,
+    slaOut:  parseFloat(document.getElementById(`op-${idx}-so`).value)||0,
+    horas:   document.getElementById(`op-${idx}-h`).value||'0:00:00',
+    score:   parseFloat(document.getElementById(`op-${idx}-sc`).value)||0,
+  }));
+
+  const [r1, r2] = await Promise.all([
+    api('/api/config', 'POST', configBody),
+    api('/api/operators', 'POST', { operators }),
+  ]);
+
+  if(r1.ok && r2.ok){
+    showStatus('✓ Todos os dados salvos!');
+    await loadAndRender();
+  }
+}
+
+function showStatus(msg){
+  const el=document.getElementById('smsg');
+  el.textContent=msg;
+  setTimeout(()=>el.textContent='',3000);
+}
+
+/* ═══════════════════════ SVG SPRITES ═══════════════════════ */
+function runnerHTML(color, size=30){
+  return `<svg class="runner-svg" width="${size}" height="${Math.round(size*1.25)}" viewBox="0 0 20 25" xmlns="http://www.w3.org/2000/svg">
+  <style>.rl1{animation:legA .2s steps(1) infinite;}.rl2{animation:legB .2s steps(1) infinite;}.ra1{animation:armA .2s steps(1) infinite;}.ra2{animation:armB .2s steps(1) infinite;}
+  @keyframes legA{0%,100%{transform-origin:9px 14px;transform:rotate(-30deg);}50%{transform-origin:9px 14px;transform:rotate(30deg);}}
+  @keyframes legB{0%,100%{transform-origin:11px 14px;transform:rotate(30deg);}50%{transform-origin:11px 14px;transform:rotate(-30deg);}}
+  @keyframes armA{0%,100%{transform-origin:8px 10px;transform:rotate(35deg);}50%{transform-origin:8px 10px;transform:rotate(-35deg);}}
+  @keyframes armB{0%,100%{transform-origin:12px 10px;transform:rotate(-35deg);}50%{transform-origin:12px 10px;transform:rotate(35deg);}}</style>
+  <circle cx="10" cy="4" r="3.4" fill="${color}"/>
+  <rect x="7.5" y="7" width="5" height="7" rx="1.5" fill="${color}"/>
+  <line class="ra1" x1="8" y1="10" x2="5" y2="14" stroke="${color}" stroke-width="2.2" stroke-linecap="round"/>
+  <line class="ra2" x1="12" y1="10" x2="15" y2="7" stroke="${color}" stroke-width="2.2" stroke-linecap="round"/>
+  <line class="rl1" x1="9" y1="14" x2="6" y2="22" stroke="${color}" stroke-width="2.2" stroke-linecap="round"/>
+  <line class="rl2" x1="11" y1="14" x2="14.5" y2="21" stroke="${color}" stroke-width="2.2" stroke-linecap="round"/>
+  <ellipse cx="5.5" cy="22.2" rx="2.2" ry="1.2" fill="${color}"/>
+  <ellipse cx="15" cy="21.2" rx="2.2" ry="1.2" fill="${color}"/>
+</svg>`;
+}
+
+function reaperHTML(size=34){
+  return `<svg width="${size}" height="${Math.round(size*1.3)}" viewBox="0 0 22 28" xmlns="http://www.w3.org/2000/svg">
+  <style>.cloak{animation:cloak .3s ease-in-out infinite alternate;}.scythe{animation:scythe .5s ease-in-out infinite alternate;}.eye{animation:eyeglow .6s ease-in-out infinite alternate;}.rleg1{animation:rlegA .25s steps(1) infinite;}.rleg2{animation:rlegB .25s steps(1) infinite;}
+  @keyframes cloak{0%{transform-origin:11px 14px;transform:skewX(-3deg);}100%{transform-origin:11px 14px;transform:skewX(3deg);}}
+  @keyframes scythe{0%{transform-origin:16px 10px;transform:rotate(-8deg);}100%{transform-origin:16px 10px;transform:rotate(4deg);}}
+  @keyframes eyeglow{0%{opacity:.7;}100%{opacity:1;}}
+  @keyframes rlegA{0%,100%{transform-origin:9px 18px;transform:rotate(-20deg);}50%{transform-origin:9px 18px;transform:rotate(20deg);}}
+  @keyframes rlegB{0%,100%{transform-origin:13px 18px;transform:rotate(20deg);}50%{transform-origin:13px 18px;transform:rotate(-20deg);}}</style>
+  <ellipse cx="11" cy="5.5" rx="6" ry="6" fill="#0d0d1a"/>
+  <path d="M5.5 5.5 Q11 -0.5 16.5 5.5 Q17 11 11 10 Q5 11 5.5 5.5Z" fill="#1a1a2e"/>
+  <circle class="eye" cx="8.8" cy="5.8" r="1.4" fill="#FF2222"/>
+  <circle class="eye" cx="13.2" cy="5.8" r="1.4" fill="#FF2222"/>
+  <path d="M10.2 7.5 L11 8.5 L11.8 7.5" stroke="#4a1a1a" stroke-width="0.7" fill="none"/>
+  <path d="M8.8 9.3 Q11 10.2 13.2 9.3" stroke="#FF2222" stroke-width="0.8" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path class="cloak" d="M5.5 9 Q3.5 18 5 26 L9 26 L11 14 L13 26 L17 26 Q18.5 18 16.5 9Z" fill="#12121e"/>
+  <g class="scythe">
+    <line x1="15" y1="11" x2="21" y2="1" stroke="#6b4a1a" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M21 1 Q25.5 -0.5 23 5.5 Q21 8 18.5 5Z" fill="#C0C0C0" opacity=".85"/>
+  </g>
+  <line x1="6" y1="12" x2="3" y2="16" stroke="#1a1a2e" stroke-width="2.2" stroke-linecap="round"/>
+  <line x1="16" y1="12" x2="19.5" y2="10" stroke="#1a1a2e" stroke-width="2.2" stroke-linecap="round"/>
+  <line class="rleg1" x1="9" y1="18" x2="6.5" y2="26" stroke="#12121e" stroke-width="2.5" stroke-linecap="round"/>
+  <line class="rleg2" x1="13" y1="18" x2="15.5" y2="25" stroke="#12121e" stroke-width="2.5" stroke-linecap="round"/>
+  <ellipse cx="11" cy="5.5" rx="6.5" ry="6.5" fill="none" stroke="#FF2222" stroke-width="0.6" opacity=".35"/>
+</svg>`;
+}
+
+function ghostHTML(size=28){
+  return `<svg class="ghost-svg" width="${size}" height="${Math.round(size*1.2)}" viewBox="0 0 24 28" xmlns="http://www.w3.org/2000/svg">
+  <path d="M4 14 Q4 4 12 4 Q20 4 20 14 L20 26 Q17 23 15 26 Q13 23 12 26 Q11 23 9 26 Q7 23 4 26Z" fill="rgba(180,170,255,0.55)" stroke="rgba(200,190,255,0.4)" stroke-width="0.8"/>
+  <ellipse cx="9" cy="14" rx="2.2" ry="2.5" fill="rgba(40,30,80,0.9)"/>
+  <ellipse cx="15" cy="14" rx="2.2" ry="2.5" fill="rgba(40,30,80,0.9)"/>
+  <circle cx="9.8" cy="13" r="0.7" fill="rgba(255,255,255,0.7)"/>
+  <circle cx="15.8" cy="13" r="0.7" fill="rgba(255,255,255,0.7)"/>
+  <path d="M9.5 18.5 Q12 17 14.5 18.5" stroke="rgba(40,30,80,0.8)" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <ellipse cx="12" cy="14" rx="9" ry="12" fill="none" stroke="rgba(160,140,255,0.2)" stroke-width="3"/>
+</svg>`;
+}
+
+function ghostSparks(){
+  return [
+    {tx:'-8px',ty:'-10px',tx2:'-14px',ty2:'-20px',dl:'0s',  left:'30%',top:'40%'},
+    {tx:'10px', ty:'-8px', tx2:'16px', ty2:'-18px',dl:'.4s', left:'60%',top:'35%'},
+    {tx:'-5px',ty:'-14px',tx2:'-8px', ty2:'-26px',dl:'.8s', left:'45%',top:'20%'},
+    {tx:'7px',  ty:'-6px', tx2:'12px', ty2:'-14px',dl:'1.1s',left:'20%',top:'50%'},
+  ].map(c=>`<div class="spark" style="left:${c.left};top:${c.top};--tx:${c.tx};--ty:${c.ty};--tx2:${c.tx2};--ty2:${c.ty2};animation-delay:${c.dl};"></div>`).join('');
+}
+
+/* ═══════════════════════ TRACK BUILDERS ═══════════════════════ */
+function slaPct(op){ const t=op.slaIn+op.slaOut; return t?Math.round(op.slaIn/t*100):0; }
+function slaColor(p){ return p>=80?'#22C55E':p>=60?'#F59E0B':'#EF4444'; }
+function medalCls(r){ return r===1?'gold':r===2?'silver':r===3?'bronze':''; }
+
+function buildDeadTrack(op){
+  return `
+    <div class="dead-track">
+      <div class="dead-dashes"></div>
+      <div class="dead-ground"></div>
+      <div class="ghost-wrap" style="left:20%;">${ghostSparks()}${ghostHTML(28)}</div>
+      <div class="reaper-won" style="left:44%;">${reaperHTML(40)}</div>
+      <div class="end-star-dead">⭐</div>
+      <div class="track-pct" style="color:#6B5FA0;bottom:-20px;">sem pontuação</div>
+      <div class="track-goal" style="bottom:-20px;">capturado 💀</div>
+    </div>
+    <span class="stag stag-dead">👻 Capturado pela morte</span>
+  `;
+}
+
+function buildRaceTrack(op, rank, goalSla){
+  const pct = slaPct(op);
+  const color = slaColor(pct);
+  const isTop = rank === 1;
+  const runColor = isTop?'#F5C842': rank===2?'#B0C4DE': rank===3?'#CD7F32':'#60A5FA';
+  const runPct = Math.max(4, Math.min(82, pct * 0.82));
+  let reapPct;
+  if(pct<60){ reapPct = Math.max(-12, runPct - (4+(60-pct)*0.12)); }
+  else if(pct<80){ reapPct = Math.max(-12, runPct - 16); }
+  else { reapPct = -18; }
+
+  const tag = isTop
+    ? `<span class="stag stag-top">🔥 Campeão da semana</span>`
+    : pct>=80 ? `<span class="stag stag-ok">⭐ Perto da meta</span>`
+    : pct>=60 ? `<span class="stag stag-warn">⚠️ Atenção</span>`
+    : `<span class="stag stag-danger">💀 A morte te persegue!</span>`;
+
+  return `
+    <div class="race-wrap">
+      <div class="dashes"></div>
+      <div class="ground">
+        <div class="track-fill-bar" data-pct="${runPct}"
+          style="width:0%;background:linear-gradient(90deg,${color}55,${color});">
+        </div>
+      </div>
+      <div style="position:absolute;bottom:8px;height:16px;border-radius:100px;pointer-events:none;z-index:2;
+        background:linear-gradient(90deg,transparent,rgba(255,50,50,${pct<60?.45:pct<80?.2:0}));
+        left:${Math.max(0,reapPct)}%;width:15%;transition:left 1.8s cubic-bezier(.22,1,.36,1);"></div>
+      <div class="reaper-sprite" style="left:${reapPct}%;bottom:13px;">${reaperHTML(34)}</div>
+      <div class="runner-sprite" style="left:${runPct}%;bottom:13px;">${runnerHTML(runColor,30)}</div>
+      <div class="end-star">⭐</div>
+      <div class="track-pct" style="color:${color}">${pct}% SLA</div>
+      <div class="track-goal">meta: ${goalSla}%</div>
+    </div>
+    ${tag}
+  `;
+}
+
+/* ═══════════════════════ RENDER RANKING ═══════════════════════ */
+function renderRanking(data){
+  document.getElementById('hdr-ab').textContent = data.header.abertos;
+  document.getElementById('hdr-fe').textContent = data.header.fechados;
+  document.getElementById('hdr-si').textContent = data.header.slaIn;
+  document.getElementById('hdr-so').textContent = data.header.slaOut;
+  document.getElementById('hdr-hr').textContent = data.header.horas;
+  document.getElementById('hdr-dt').textContent = data.header.dist || '—';
+
+  const grid = document.getElementById('ranking-grid');
+  grid.innerHTML='';
+
+  data.operators.forEach((op,i)=>{
+    const rank = i+1;
+    const pct = slaPct(op);
+    const color = slaColor(pct);
+    const isDead = op.score === 0;
+    const isTop = rank === 1;
+    const med = medalCls(rank);
+    const goalSla = data.goals.slaPct || 80;
+
+    const borderColor = rank===1?'#F5C842':rank===2?'#B0C4DE':rank===3?'#CD7F32':isDead?'rgba(100,80,180,.3)':'transparent';
+
+    const card = document.createElement('div');
+    card.className = 'rank-card' + (isDead?' dead-card':'');
+    card.dataset.rank = rank;
+    card.style.borderLeft = `4px solid ${borderColor}`;
+
+    const trackHTML = isDead ? buildDeadTrack(op) : buildRaceTrack(op, rank, goalSla);
+
+    card.innerHTML=`
+      <div class="card-top">
+        <div class="rank-pos ${med}" style="${isDead?'opacity:.4':''}">
+          ${isDead?'<span style="font-size:26px">👻</span>':rank}
+        </div>
+        <div>
+          <div class="rank-name" style="${isDead?'opacity:.55':''}">
+            ${op.name}${isDead?' <span style="font-size:14px">👻</span>':''}
+          </div>
+          <div class="rank-chips">
+            <div class="chip"><div class="chip-l">Tickets</div><div class="chip-v" style="${isDead?'opacity:.45':''}">${op.tickets}</div></div>
+            <div class="chip"><div class="chip-l">SLA Dentro</div><div class="chip-v" style="color:${color};${isDead?'opacity:.45':''}">${op.slaIn}</div></div>
+            <div class="chip"><div class="chip-l">SLA Fora</div><div class="chip-v" style="color:#EF4444;${isDead?'opacity:.45':''}">${op.slaOut}</div></div>
+            <div class="chip"><div class="chip-l">Horas</div><div class="chip-v" style="color:#94A3B8;${isDead?'opacity:.45':''}">${op.horas}</div></div>
+          </div>
+        </div>
+        <div class="score-col">
+          <div class="score-n" style="color:${op.score>=2?'#F5C842':op.score>=1?'#94A3B8':'var(--muted)'}">${op.score}</div>
+          <div class="score-l">pts</div>
+        </div>
+      </div>
+      ${trackHTML}
+    `;
+    grid.appendChild(card);
+  });
+
+  requestAnimationFrame(()=>{
+    setTimeout(()=>{
+      document.querySelectorAll('.track-fill-bar').forEach(el=>{
+        el.style.width = el.dataset.pct+'%';
+      });
+    }, 150);
+  });
+}
+
+/* ═══════════════════════ STARS ═══════════════════════ */
+function initStars(){
+  const bg=document.getElementById('stars-bg');
+  for(let i=0;i<200;i++){
+    const s=document.createElement('div'); s.className='star';
+    const sz=Math.random()*2.5+0.4;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${(Math.random()*3+2).toFixed(1)}s;--dl:${(Math.random()*5).toFixed(1)}s;`;
+    bg.appendChild(s);
+  }
+}
+
+/* ═══════════════════════ WEEK BADGE ═══════════════════════ */
+function updateWeek(){
+  const now=new Date(),day=now.getDay();
+  const mon=new Date(now); mon.setDate(now.getDate()-((day===0?7:day)-1));
+  const fri=new Date(mon); fri.setDate(mon.getDate()+4);
+  const fmt=d=>d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+  document.getElementById('week-badge').textContent=
+    (day>=5||day===0)?`Semana encerrada · ${fmt(mon)}–${fmt(fri)}`:`Em andamento · ${fmt(mon)}–${fmt(fri)}`;
+}
+
+boot();
+</script>
+</body>
+</html>
