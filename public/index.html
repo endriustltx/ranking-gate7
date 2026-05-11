@@ -782,7 +782,6 @@ function renderRanking(data){
     const rank = i+1;
     const pct = slaPct(op);
     const color = slaColor(pct);
-    const isDead = op.score === 0;
     const isTop = rank === 1;
     const med = medalCls(rank);
     const goalSla = data.goals.slaPct || 80;

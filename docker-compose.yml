@@ -12,14 +12,8 @@ services:
     environment:
       - PORT=3000
       - ADMIN_USER=admin
-<<<<<<< HEAD
       - ADMIN_PASS=meta2025
-=======
-      - ADMIN_PASS=U2nhhOJjtdCEyn
->>>>>>> feebf4eb2947bdaa43d1d108edce3636f9bf6cb6
       - SESSION_SECRET=troque-esta-chave-secreta-agora
-    labels:
-      - "com.centurion.description=Ranking Operadores Dashboard"
 
 volumes:
   ranking-data:
