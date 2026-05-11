@@ -347,15 +347,17 @@ function buildDeadTrack(op){
 }
 
 function buildWinTrack(op,rank){
-  var rc=rank===1?'#F5C842':rank===2?'#B0C4DE':rank===3?'#CD7F32':'#60A5FA';
+  /* Só pinguim morto no chão + explosão + estrela brilhando — operador "virou a estrela" */
   return '<div class="race-wrap"><div class="dashes"></div><div class="ground">'
     +'<div class="track-fill-bar" data-pct="82" style="width:0%;background:linear-gradient(90deg,#22C55E55,#22C55E);"></div></div>'
-    +'<div style="position:absolute;bottom:17px;left:18%;z-index:7;transform:rotate(85deg);opacity:.45;filter:grayscale(.6);">'+penguinSVG(28)+'</div>'
-    +'<div style="position:absolute;bottom:50px;left:16%;z-index:8;font-size:20px;animation:bubblePop .4s both;">💥</div>'
-    +'<div class="runner-wrap" style="left:78%;bottom:13px;">'
-    +'<div class="bubble bubble-venci">haha dessa vez não! 🌟</div>'
-    +runnerSVG(rc,30)+'</div>'
-    +'<div style="position:absolute;right:4px;bottom:2px;font-size:38px;z-index:8;animation:starpulse .7s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(245,200,66,1));">⭐</div>'
+    /* pinguim deitado morto no chão, centro da pista */
+    +'<div style="position:absolute;bottom:13px;left:42%;z-index:7;transform:rotate(90deg) scaleX(-1);opacity:.5;filter:grayscale(.8);">'+penguinSVG(30)+'</div>'
+    /* X olhos acima do pinguim morto */
+    +'<div style="position:absolute;bottom:46px;left:41%;z-index:8;font-size:22px;animation:bubblePop .4s both;">💥</div>'
+    /* balão saindo da estrela */
+    +'<div style="position:absolute;right:46px;bottom:44px;z-index:9;background:#F5C842;color:#111;font-family:Barlow Condensed,sans-serif;font-size:11px;font-weight:700;padding:5px 10px;border-radius:10px;white-space:nowrap;animation:bubblePop .4s both,bubbleFloat .6s ease-in-out infinite alternate;">haha dessa vez não! 🌟</div>'
+    /* estrela grande e brilhante no fim */
+    +'<div style="position:absolute;right:4px;bottom:2px;font-size:48px;z-index:8;animation:starpulse .7s ease-in-out infinite;filter:drop-shadow(0 0 24px rgba(245,200,66,1)) drop-shadow(0 0 48px rgba(245,200,66,.7));">⭐</div>'
     +'<div class="track-pct" style="color:#22C55E;bottom:-20px;">score 5.0 — MÁXIMO!</div>'
     +'<div class="track-goal" style="bottom:-20px;">pinguim eliminado 💀</div>'
     +'</div><span class="stag stag-win">🏆 Pinguim eliminado — score máximo!</span>';
