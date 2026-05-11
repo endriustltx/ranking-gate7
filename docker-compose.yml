@@ -12,7 +12,7 @@ services:
     environment:
       - PORT=3000
       - ADMIN_USER=admin
-      - ADMIN_PASS=meta2025
+      - ADMIN_PASS=U2nhhOJjtdCEyn
       - SESSION_SECRET=troque-esta-chave-secreta-agora
 
 volumes:
